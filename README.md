@@ -1,19 +1,19 @@
 # BoteSalvatICX.jl
-Implements the Bote-Salvat ionization crosssection model described in 
+Implements the Bote-Salvat ionization crosssection model described in
 
 * D. Bote and F. Salvat, _"Calculations of inner-shell ionization by electron impact with the distorted-wave and plane-wave Born approximations"_, Phys. Rev. **A77**, 042701 (2008).
 * Bote, David, et al. _"Cross sections for ionization of K, L and M shells of atoms by impact of electrons and positrons with energies up to 1 GeV: Analytical formulas."_ Atomic Data and Nuclear Data Tables **95.6** (2009): 871-909.
 
 This is a very lean implementation that only (currently) handles electrons.  The only dependence is the plotting library Gadfly.
 
-Shells are identified by Symbols of the form 
+Shells are identified by Symbols of the form
 ```julia
 :K, :L1, :L2, :L3, :M1, :M2, :M3, :M4, :M5
 ```
 
 The element implementation data is stored in
 ```julia
-BoteSalvatElectron::Vector{BoteSalvatElementDatum} 
+BoteSalvatElectron::Vector{BoteSalvatElementDatum}
 ```
 * A vector containing implementation data for Z = 1:99 by the element's atomic number.
 
@@ -35,8 +35,3 @@ compute(bse::BoteSalvatElementDatum, ish::Int, energy::AbstractFloat, edgeenergy
 isavailable(bse::BoteSalvatElementDatum, shell::Symbol)
 ```
 * True if data is available to compute the crosssection for the specified shell
-
-```julia
-Gadfly.plot(bse::BoteSalvatElementDatum)
-```
-* Plots the crosssection for all available shells on a Log-Log plot.

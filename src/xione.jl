@@ -602,21 +602,3 @@ Is the specified shell available for this element datum?
 """
 isavailable(bs::BoteSalvatElementDatum, shell::Symbol) =
    haskey(shells,shell) && (length(bs.edge)>=shells[shell])
-
-using Gadfly
-
-function Gadfly.plot(bs::BoteSalvatElementDatum)
-    colors = [ "red", "green", "blue", "yellow", "lightgreen", "purple", "brown", "orange", "lightblue"]
-    name = [ "K", "L1", "L2", "L3", "M1", "M2", "M3", "M4", "M5" ]
-    lyr(bs,i,color) =
-        layer(loge->log10(max(0.1, compute(bs,i,10.0^loge)/1.0e-24)), log10(bs.edge[i]), log10(1.0e9),Theme(default_color=color))
-    layers=[]
-    for i in eachindex(bs.edge)
-        push!(layers, lyr(bs, i, colors[i]))
-    end
-    idx=1:length(bs.edge)
-    plot(layers...,
-      Guide.manual_color_key("Shell", name[idx], colors[idx]),
-      Guide.xlabel("log(E) (eV)"), Guide.ylabel("log(σ) (barns)"),
-      Coord.cartesian(xmin=round(log10(minimum(bs.edge))-0.5), xmax=9.0, ymin=0.0))
-end
