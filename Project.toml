@@ -1,0 +1,7 @@
+name = "BodeSalvatICX"
+uuid = "fe54227b-96c7-489b-9963-dd1ce2905f30"
+authors = ["nritchie <nicholas.ritchie@nist.gov>"]
+version = "0.1.0"
+
+[deps]
+Gadfly = "c91e804a-d5a3-530f-b6f0-dfbca275c004"
