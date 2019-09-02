@@ -4,7 +4,7 @@ Implements the Bote-Salvat ionization crosssection model described in
 * D. Bote and F. Salvat, _"Calculations of inner-shell ionization by electron impact with the distorted-wave and plane-wave Born approximations"_, Phys. Rev. **A77**, 042701 (2008).
 * Bote, David, et al. _"Cross sections for ionization of K, L and M shells of atoms by impact of electrons and positrons with energies up to 1 GeV: Analytical formulas."_ Atomic Data and Nuclear Data Tables **95.6** (2009): 871-909.
 
-This is a very lean implementation that only (currently) handles electrons.  The only dependence is the plotting library Gadfly.
+This is a very lean implementation that only (currently) handles electrons.
 
 Shells are identified by Symbols of the form
 ```julia
