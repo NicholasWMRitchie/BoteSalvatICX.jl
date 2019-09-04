@@ -16,7 +16,7 @@ boteSalvatICX(z::Int, shell::Symbol, energy::AbstractFloat, edgeenergy::Union{Fl
 * Computes the cross-section in square centimeters for z=1:99, shell=1:<=9, energy = 0 to 1 GeV in eV
 * If edgeenergy is nothing, the B-S recommended value is used, otherwise the user may provide an edge energy in eV
 * Returns 0.0 if energy<edgeenergy 
-* Throws an assertion if or if data isn't available for the specified shell.
+* Throws an assertion if data isn't available for the specified shell.
 
 ```julia
 boteSalvatAvailable(z::Int, shell::Symbol)
