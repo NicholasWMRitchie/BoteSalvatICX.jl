@@ -551,54 +551,62 @@ BoteSalvatElectron = [
       [0.000227 2.04e-5 -0.000453 0.0018 -0.00417; 0.00087 3.23e-5 -0.000838 0.00144 -0.00264; 0.000985 3.83e-5 -0.000889 0.00181 -0.0032; 0.00185 5.52e-5 -0.0016 0.00311 -0.00517; 0.00321 4.37e-5 -0.0026 0.00622 -0.0162; 0.00376 4.47e-5 -0.00348 0.00326 -0.00142; 0.00718 7.46e-5 -0.00658 0.00496 -0.00233; 0.00921 9.65e-5 -0.00884 0.0205 -0.0408; 0.012 0.00012 -0.0115 0.0271 -0.055])
 ]
 
-
-shells = Dict( :K=>1, :L1=>2, :L2=>3, :L3=>4, :M1=>5, :M2=>6, :M3=>7, :M4=>8, :M5=>9 )
 """
-    ionizationCrossSection(z::Int, shell::Int, energy::Float64)
-z : 1-100
-shell : :K, :L1, :L2, :L3, :M1, ..., :M5
-energy : in eV
-edgeenergy : in eV (defaults to the Dirac-Hartree-Slater values provided by Bote & Salvat)
+    boteSalvatICX(z::Int, shell::Int, energy::Float64, edgeenergy::Union{AbstractFloat,Nothing}=nothing)
+Computes the inner shell ionization crosssection for energetic electrons. Asserts if an argument is
+out of range.
+* z : The atomic number z in the range 1:99
+* shell : The atomic shell being ionized 1->K, 2->L1, 3->L2, ..., 9->M5
+* energy : The energy of the incident electron in eV
+* edgeenergy : The edge energy of the shell in eV (nothing -> defaults to the Dirac-Hartree-Slater values provided by Bote & Salvat)
 """
-function boteSalvatICX(z::Int, shell::Symbol, energy::AbstractFloat, edgeenergy::Union{Float64,Nothing}=nothing)
-   @assert((z>=1) && (z<=length(BoteSalvatElectron)), "z must be in the range 1:100.")
-   return compute(BoteSalvatElectron[z], shells[shell], energy)
-end
-
-function compute(bsdatum::BoteSalvatElementDatum, ish::Int, eev::AbstractFloat, edgeenergy::Union{Float64,Nothing}=nothing)
+function boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat, edgeenergy::Union{AbstractFloat,Nothing}=nothing)
+   @assert((z>=1) && (z<=length(BoteSalvatElectron)), "z must be in the range 1:$(length(BoteSalvatElectron)).")
+   bsdatum = BoteSalvatElectron[z]
+   @assert(shell<=length(bsdatum.edge),"For Z=$(bsdatum.z), the shell must be in the range 1:$(length(bsdatum.edgeenergy))")
    xione=0.0
-   if ish <= length(bsdatum.edge)
-      ee = isnothing(edgeenergy) ? bsdatum.edge[ish] : edgeenergy
-      overV = eev / ee
-      if overV > 1.0
-         if overV <= 16.0
-            as = bsdatum.A[ish,:]
-            opu = 1.0 / (1.0 + overV)
-            ffitlo = as[1] +
-               as[2]*overV +
-               as[3]*opu +
-               as[4]*opu^3 +
-               as[5]*opu^5
-            xione = (overV - 1.0) * (ffitlo / overV)^2
-         else
-            beta2 = (eev * (eev + 2.0 * REV)) / ((eev + REV)^2)
-            x = sqrt(eev * (eev + 2.0 * REV)) / REV
-            g = bsdatum.G[ish,:]
-            ffitup = (((2.0 * log(x)) - beta2) * (1.0 + g[1] / x)) +
-               g[2] +
-               g[3] * sqrt(REV / (eev + REV)) +
-               g[4] / x
-            factr = bsdatum.Anlj[ish] / beta2
-            xione = ((factr * overV) / (overV + bsdatum.Be[ish])) * ffitup
-         end
+   ee = isnothing(edgeenergy) ? bsdatum.edge[shell] : edgeenergy
+   overV = energy / ee
+   if overV > 1.0
+      if overV <= 16.0
+         as = bsdatum.A[shell,:]
+         opu = 1.0 / (1.0 + overV)
+         ffitlo = as[1] +
+            as[2]*overV +
+            as[3]*opu +
+            as[4]*opu^3 +
+            as[5]*opu^5
+         xione = (overV - 1.0) * (ffitlo / overV)^2
+      else
+         beta2 = (energy * (energy + 2.0 * REV)) / ((energy + REV)^2)
+         x = sqrt(energy * (energy + 2.0 * REV)) / REV
+         g = bsdatum.G[shell,:]
+         ffitup = (((2.0 * log(x)) - beta2) * (1.0 + g[1] / x)) +
+            g[2] +
+            g[3] * sqrt(REV / (energy + REV)) +
+            g[4] / x
+         factr = bsdatum.Anlj[shell] / beta2
+         xione = ((factr * overV) / (overV + bsdatum.Be[shell])) * ffitup
       end
    end
    return FPIAB2 * xione
 end
 
 """
-    isavailable(bs::BoteSalvatElementDatum, shell::Symbol)
-Is the specified shell available for this element datum?
+    boteSalvatAvailable(bs::BoteSalvatElementDatum, shell::Int)
+Is data available for the the specified element and shell?
+* z is the atomic number 1:99
+* shell is 1->K, 2->L1, ..., 9->M5
 """
-isavailable(bs::BoteSalvatElementDatum, shell::Symbol) =
-   haskey(shells,shell) && (length(bs.edge)>=shells[shell])
+boteSalvatAvailable(z::Integer, shell::Int) =
+   (z>=1) && (z<=length(BoteSalvatElectron)) &&
+   (shell>=1) && (shell<=length(BoteSalvatElectron[z].edge))
+
+"""
+    boteSalvateEdgeEnergy(bs::BoteSalvatElementDatum, shell::Int)
+Is data available for the the specified element and shell?
+* z is the atomic number 1:99
+* shell is 1->K, 2->L1, ..., 9->M5
+"""
+boteSalvatEdgeEnergy(z::Integer, shell::Int) =
+   BoteSalvatElectron[z].edge[shell]
