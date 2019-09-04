@@ -6,32 +6,24 @@ Implements the Bote-Salvat ionization crosssection model described in
 
 This is a very lean implementation that only (currently) handles electrons.
 
-Shells are identified by Symbols of the form
-```julia
-:K, :L1, :L2, :L3, :M1, :M2, :M3, :M4, :M5
-```
+Elements are identified by atomic number, z.
 
-The element implementation data is stored in
-```julia
-BoteSalvatElectron::Vector{BoteSalvatElementDatum}
-```
-* A vector containing implementation data for Z = 1:99 by the element's atomic number.
+Shells are identified by integer indices where 1->K, 2->L1, 3->L2, ...,9->M5 (IUPAC notation)
 
 ```julia
 boteSalvatICX(z::Int, shell::Symbol, energy::AbstractFloat, edgeenergy::Union{Float64,Nothing}=nothing)
 ```
-* Computes the cross-section in square centimeters for z=1:99, shell=:K|:L1|:L2|...|:M5, energy = 0 to 1 GeV in eV
+* Computes the cross-section in square centimeters for z=1:99, shell=1:<=9, energy = 0 to 1 GeV in eV
 * If edgeenergy is nothing, the B-S recommended value is used, otherwise the user may provide an edge energy in eV
-* Returns 0.0 if energy<edgeenergy or if data isn't available for the specified shell.
-or
-```julia
-compute(bse::BoteSalvatElementDatum, ish::Int, energy::AbstractFloat, edgeenergy::Union{Float64,Nothing}=nothing)
-```
-* Computes the cross-section in square centimeters for z=1:99, shell=1:9 for K|M5 energy = 0 to 1 GeV in eV
-* If edgeenergy is nothing, the B-S recommended value is used, otherwise the user may provide an edge energy in eV
-* Returns 0.0 if energy<edgeenergy or if data isn't available for the specified shell.
+* Returns 0.0 if energy<edgeenergy 
+* Throws an assertion if data isn't available for the specified shell.
 
 ```julia
-isavailable(bse::BoteSalvatElementDatum, shell::Symbol)
+boteSalvatAvailable(z::Int, shell::Symbol)
 ```
 * True if data is available to compute the crosssection for the specified shell
+
+```julia
+boteSalvatEdgeEnergy(z::Int, shell::Symbol)
+```
+* The ionization energy for the specified element and shell.
