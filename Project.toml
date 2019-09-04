@@ -1,5 +1,8 @@
 name = "BoteSalvatICX"
 uuid = "fe54227b-96c7-489b-9963-dd1ce2905f30"
 authors = ["nritchie <nicholas.ritchie@nist.gov>"]
-version = "0.0.1"
 repo-url = "https://github.com/usnistgov/BoteSalvatICX.jl"
+version = "0.0.1"
+
+[deps]
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
