@@ -30,11 +30,6 @@ Output value:
 
   D. Bote, F. Salvat, A. Jablonski and C.J. Powell (September 2008)
 """
-#using PhysicalConstants.CODATA2018
-#const BOHR_RADIUS = convert(Float64,uconvert(u"cm",BohrRadius)/u"cm")
-#const FPIAB2 = 4.0π * BOHR_RADIUS^2
-#const REV = convert(Float64,uconvert(u"eV",ElectronMass*SpeedOfLightInVacuum^2)/u"eV")
-
 const FPIAB2 = 4.0π * 5.291772108e-9^2 # from xion.f
 const REV = 5.10998918e5 # from xion.f
 
@@ -46,13 +41,13 @@ struct BoteSalvatElementDatum
     edge::Vector{Float64}    # [1:9]
     A::Matrix{Float64}   # [1:9][5]
     function BoteSalvatElementDatum(z, be, anlj, g, ee, a)
-        ne=length(ee)
-        @assert length(be)==ne
-        @assert length(anlj)==ne
-        @assert(size(g)==( ne, 4), "size(g)=$(size(g))")
+        ne = length(ee)
+        @assert length(be) == ne
+        @assert length(anlj) == ne
+        @assert(size(g) == (ne, 4), "size(g)=$(size(g))")
         @assert(size(a) == (ne, 5), "size(a)=$(size(a))")
-        return new(z,be,anlj,g,ee,a)
-   end
+        return new(z, be, anlj, g, ee, a)
+    end
 end
 
 
@@ -554,7 +549,19 @@ BoteSalvatElectron = [
 ]
 
 """
-    boteSalvatICX(z::Int, shell::Int, energy::Float64, edgeenergy::Union{AbstractFloat,Nothing}=nothing)
+    boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat)
+
+Computes the inner shell ionization crosssection for energetic electrons. Asserts if an argument is
+out of range.
+* z : The atomic number z in the range 1:99
+* shell : The atomic shell being ionized 1->K, 2->L1, 3->L2, ..., 9->M5
+* energy : The energy of the incident electron in eV
+"""
+boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat) =
+   boteSalvatICX(z, shell, energy, boteSalvatEdgeEnergy(z, shell))
+
+"""
+    boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat, edgeenergy::AbstractFloat)
 Computes the inner shell ionization crosssection for energetic electrons. Asserts if an argument is
 out of range.
 * z : The atomic number z in the range 1:99
@@ -562,36 +569,35 @@ out of range.
 * energy : The energy of the incident electron in eV
 * edgeenergy : The edge energy of the shell in eV (nothing -> defaults to the Dirac-Hartree-Slater values provided by Bote & Salvat)
 """
-function boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat, edgeenergy::Union{AbstractFloat,Nothing}=nothing)
-   @assert((z>=1) && (z<=length(BoteSalvatElectron)), "z must be in the range 1:$(length(BoteSalvatElectron)).")
-   bsdatum = BoteSalvatElectron[z]
-   @assert(shell<=length(bsdatum.edge),"For Z=$(bsdatum.z), the shell must be in the range 1:$(length(bsdatum.edge))")
-   xione=0.0
-   ee = isnothing(edgeenergy) ? bsdatum.edge[shell] : edgeenergy
-   overV = energy / ee
-   if overV > 1.0
-      if overV <= 16.0
-         as = bsdatum.A[shell,:]
-         opu = 1.0 / (1.0 + overV)
-         ffitlo = as[1] +
-            as[2]*overV +
-            as[3]*opu +
-            as[4]*opu^3 +
-            as[5]*opu^5
-         xione = (overV - 1.0) * (ffitlo / overV)^2
-      else
-         beta2 = (energy * (energy + 2.0 * REV)) / ((energy + REV)^2)
-         x = sqrt(energy * (energy + 2.0 * REV)) / REV
-         g = bsdatum.G[shell,:]
-         ffitup = (((2.0 * log(x)) - beta2) * (1.0 + g[1] / x)) +
+function boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat, edgeenergy::AbstractFloat)
+    @assert((z >= 1) && (z <= length(BoteSalvatElectron)), "z must be in the range 1:$(length(BoteSalvatElectron)).")
+    bsdatum = BoteSalvatElectron[z]
+    @assert(shell <= length(bsdatum.edge),"For Z=$(bsdatum.z), the shell must be in the range 1:$(length(bsdatum.edge))")
+    xione = 0.0
+    overV = energy / edgeenergy
+    if overV > 1.0
+        if overV <= 16.0
+            as = bsdatum.A[shell,:]
+            opu = 1.0 / (1.0 + overV)
+            ffitlo = as[1] +
+            as[2] * overV +
+            as[3] * opu +
+            as[4] * opu^3 +
+            as[5] * opu^5
+            xione = (overV - 1.0) * (ffitlo / overV)^2
+        else
+            beta2 = (energy * (energy + 2.0 * REV)) / ((energy + REV)^2)
+            x = sqrt(energy * (energy + 2.0 * REV)) / REV
+            g = bsdatum.G[shell,:]
+            ffitup = (((2.0 * log(x)) - beta2) * (1.0 + g[1] / x)) +
             g[2] +
             g[3] * sqrt(REV / (energy + REV)) +
             g[4] / x
-         factr = bsdatum.Anlj[shell] / beta2
-         xione = ((factr * overV) / (overV + bsdatum.Be[shell])) * ffitup
-      end
-   end
-   return FPIAB2 * xione
+            factr = bsdatum.Anlj[shell] / beta2
+            xione = ((factr * overV) / (overV + bsdatum.Be[shell])) * ffitup
+        end
+    end
+    return FPIAB2 * xione
 end
 
 """
@@ -601,8 +607,8 @@ Is data available for the the specified element and shell?
 * shell is 1->K, 2->L1, ..., 9->M5
 """
 boteSalvatAvailable(z::Integer, shell::Int) =
-   (z>=1) && (z<=length(BoteSalvatElectron)) &&
-   (shell>=1) && (shell<=length(BoteSalvatElectron[z].edge))
+   (z >= 1) && (z <= length(BoteSalvatElectron)) &&
+   (shell >= 1) && (shell <= length(BoteSalvatElectron[z].edge))
 
 """
     boteSalvateEdgeEnergy(bs::BoteSalvatElementDatum, shell::Int)
