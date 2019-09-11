@@ -1,35 +1,3 @@
-"""
-The text is from the file <code>xion.f</code> as sent to NWMR by
-Cesc Salvat in September 2008.
-
-This implementation is based on DBPW computations of the ionization cross
-section. It is likely to be as good or better than anything available
-elsewhere. It particular there is very little data for the L and M shells
-and this computation is likely to be the best resource for this
-information.
-
-This function delivers the total cross section for electron impact
-ionization of K, L and M shells of neutral atoms of the elements from
-hydrogen (IZ=1) to einsteinium (IZ=99). It uses a parameterization of
-numerical cross sections computed with the distorted-wave and the
-plane-wave first-Born approximations.
-
-References:
-  D. Bote and F. Salvat, "Calculations of inner-shell ionization by
-  electron impact with the distorted-wave and plane-wave Born
-  approximations", Phys. Rev. A77, 042701 (2008).
-  D. Bote et al., "Cross sections for ionization of K, L and M shells of
-  atoms by impact of electrons and positrons with energies up to 1 GeV.
-  Analytical formulas", At. and Nucl. Data Tables (in preparation).
-Input Arguments:
-  EEV ..... kinetic energy of the projectile electron (in eV).
-  IZ ...... atomic number of the target atom (IZ=1 to 99).
-  ISH ..... active target electron shell, 1=K, 2=L1, 3=L2, 4=L3, 5=M1, ..., 9=M5.
-Output value:
-  XIONE ... ionization cross section (in cm**2) of the ISH shell.
-
-  D. Bote, F. Salvat, A. Jablonski and C.J. Powell (September 2008)
-"""
 const FPIAB2 = 4.0π * 5.291772108e-9^2 # from xion.f
 const REV = 5.10998918e5 # from xion.f
 
@@ -562,12 +530,13 @@ boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat) =
 
 """
     boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat, edgeenergy::AbstractFloat)
+
 Computes the inner shell ionization crosssection for energetic electrons. Asserts if an argument is
 out of range.
 * z : The atomic number z in the range 1:99
 * shell : The atomic shell being ionized 1->K, 2->L1, 3->L2, ..., 9->M5
 * energy : The energy of the incident electron in eV
-* edgeenergy : The edge energy of the shell in eV (nothing -> defaults to the Dirac-Hartree-Slater values provided by Bote & Salvat)
+* edgeenergy : The edge energy of the shell in eV
 """
 function boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat, edgeenergy::AbstractFloat)
     @assert((z >= 1) && (z <= length(BoteSalvatElectron)), "z must be in the range 1:$(length(BoteSalvatElectron)).")
@@ -602,6 +571,7 @@ end
 
 """
     boteSalvatAvailable(bs::BoteSalvatElementDatum, shell::Int)
+
 Is data available for the the specified element and shell?
 * z is the atomic number 1:99
 * shell is 1->K, 2->L1, ..., 9->M5
@@ -612,7 +582,8 @@ boteSalvatAvailable(z::Integer, shell::Int) =
 
 """
     boteSalvateEdgeEnergy(bs::BoteSalvatElementDatum, shell::Int)
-Is data available for the the specified element and shell?
+
+The edge energy used by Bote & Salvat in eV.
 * z is the atomic number 1:99
 * shell is 1->K, 2->L1, ..., 9->M5
 """
