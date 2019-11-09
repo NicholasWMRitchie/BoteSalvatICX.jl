@@ -12,8 +12,8 @@ struct BoteSalvatElementDatum
         ne = length(ee)
         @assert length(be) == ne
         @assert length(anlj) == ne
-        @assert(size(g) == (ne, 4), "size(g)=$(size(g))")
-        @assert(size(a) == (ne, 5), "size(a)=$(size(a))")
+        @assert size(g) == (ne, 4) "size(g)=$(size(g))"
+        @assert size(a) == (ne, 5) "size(a)=$(size(a))"
         return new(z, be, anlj, g, ee, a)
     end
 end
@@ -539,9 +539,9 @@ out of range.
 * edgeenergy : The edge energy of the shell in eV
 """
 function boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat, edgeenergy::AbstractFloat)
-    @assert((z >= 1) && (z <= length(BoteSalvatElectron)), "z must be in the range 1:$(length(BoteSalvatElectron)).")
+    @assert (z >= 1) && (z <= length(BoteSalvatElectron)) "z must be in the range 1:$(length(BoteSalvatElectron))."
     bsdatum = BoteSalvatElectron[z]
-    @assert(shell <= length(bsdatum.edge),"For Z=$(bsdatum.z), the shell must be in the range 1:$(length(bsdatum.edge))")
+    @assert shell <= length(bsdatum.edge) "For Z=$(bsdatum.z), the shell must be in the range 1:$(length(bsdatum.edge))"
     xione = 0.0
     overV = energy / edgeenergy
     if overV > 1.0
