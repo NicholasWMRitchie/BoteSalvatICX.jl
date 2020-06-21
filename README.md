@@ -1,4 +1,7 @@
 # BoteSalvatICX.jl
+
+https://travis-ci.com/usnistgov/FFAST.jl.svg?branch=master
+
 Implements the Bote-Salvat ionization crosssection model described in
 
 * D. Bote and F. Salvat, _"Calculations of inner-shell ionization by electron impact with the distorted-wave and plane-wave Born approximations"_, Phys. Rev. **A77**, 042701 (2008).
@@ -8,8 +11,8 @@ This is a very lean implementation that only handles electrons.
 
 Elements are identified by atomic number, z.
 
-Shells are identified by integer indices where 1->K, 2->L1, 3->L2, ...,9->M5 (IUPAC notation) or
-1->1S, 2->2S, 3->2P1/2, 4->2P3/2,... (atomic notation).
+Shells are identified by integer indices where 1->K, 2->L₁, 3->L₂, ...,9->M₅ (IUPAC notation) or
+1->1S, 2->2S, 3->2P½, 4->2P³/₂,... (atomic notation).
 
 ```julia
 boteSalvatICX(z::Int, shell::Symbol, energy::AbstractFloat, edgeenergy::Union{Float64,Nothing}=nothing)
