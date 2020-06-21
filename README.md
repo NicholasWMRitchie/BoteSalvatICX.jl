@@ -1,6 +1,6 @@
 # BoteSalvatICX.jl
 
-https://travis-ci.com/usnistgov/FFAST.jl.svg?branch=master
+![Build Badge](https://travis-ci.com/usnistgov/BoteSalvatICX.jl.svg?branch=master)
 
 Implements the Bote-Salvat ionization crosssection model described in
 
