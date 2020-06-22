@@ -18,8 +18,7 @@ struct BoteSalvatElementDatum
     end
 end
 
-
-BoteSalvatElectron = [
+const BoteSalvatElectron = (
    BoteSalvatElementDatum(1, [1.51],
       [1.51e-5],
       [0.00488 14.3 -0.0316 0.0243],
@@ -514,78 +513,62 @@ BoteSalvatElectron = [
       [5.61 6.29 -17.2 10.6; 0.0326 6.79 -0.634 -0.967; 2.52 6.59 -7.59 5.46; 1.18 7.19 -3.71 2.16; 0.439 9.91 -1.54 0.615; 0.26 7.58 -0.959 0.355; 0.00499 6.74 0.04 -0.258; 0.263 6.54 -0.91 0.53; 0.125 6.53 -0.326 0.129],
       [1.39103E+5, 2.68279E+4, 2.60139E+4, 2.04140E+4, 6.95977E+3, 6.57198E+3, 5.25320E+3, 4.63150E+3, 4.37501E+3],
       [0.000227 2.04e-5 -0.000453 0.0018 -0.00417; 0.00087 3.23e-5 -0.000838 0.00144 -0.00264; 0.000985 3.83e-5 -0.000889 0.00181 -0.0032; 0.00185 5.52e-5 -0.0016 0.00311 -0.00517; 0.00321 4.37e-5 -0.0026 0.00622 -0.0162; 0.00376 4.47e-5 -0.00348 0.00326 -0.00142; 0.00718 7.46e-5 -0.00658 0.00496 -0.00233; 0.00921 9.65e-5 -0.00884 0.0205 -0.0408; 0.012 0.00012 -0.0115 0.0271 -0.055])
-]
+)
 
 """
-    boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat)
+    boteSalvatICX(z::Int, subshell::Int, energy::AbstractFloat, edgeenergy::AbstractFloat=boteSalvatEdgeEnergy(z, subshell))
 
-Computes the inner shell ionization crosssection for energetic electrons. Asserts if an argument is
-out of range.
-* z : The atomic number z in the range 1:99
-* shell : The atomic shell being ionized 1->K, 2->L1, 3->L2, ..., 9->M5
-* energy : The energy of the incident electron in eV
+Computes the inner sub-shell ionization cross section for energetic electrons. Asserts if `z` or `subshell` is
+out of range. Use is boteSalvatAvailable(...) to determine whether an element/sub-shell pair is available.
+* `z` : The atomic number z in the range 1:99
+* `subshell` : The atomic sub-shell being ionized 1->K, 2->L₁, 3->L₂, ..., 9->M₅
+* `energy` : The kinetic energy of the incident electron in eV
+* `edgeenergy` : The edge energy of the sub-shell in eV
 """
-boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat) =
-   boteSalvatICX(z, shell, energy, boteSalvatEdgeEnergy(z, shell))
-
-"""
-    boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat, edgeenergy::AbstractFloat)
-
-Computes the inner shell ionization crosssection for energetic electrons. Asserts if an argument is
-out of range.
-* z : The atomic number z in the range 1:99
-* shell : The atomic shell being ionized 1->K, 2->L1, 3->L2, ..., 9->M5
-* energy : The energy of the incident electron in eV
-* edgeenergy : The edge energy of the shell in eV
-"""
-function boteSalvatICX(z::Int, shell::Int, energy::AbstractFloat, edgeenergy::AbstractFloat)
-    @assert (z >= 1) && (z <= length(BoteSalvatElectron)) "z must be in the range 1:$(length(BoteSalvatElectron))."
-    bsdatum = BoteSalvatElectron[z]
-    @assert shell <= length(bsdatum.edge) "For Z=$(bsdatum.z), the shell must be in the range 1:$(length(bsdatum.edge))"
-    xione = 0.0
-    overV = energy / edgeenergy
-    if overV > 1.0
-        if overV <= 16.0
-            as = bsdatum.A[shell,:]
-            opu = 1.0 / (1.0 + overV)
-            ffitlo = as[1] +
-            as[2] * overV +
-            as[3] * opu +
-            as[4] * opu^3 +
-            as[5] * opu^5
-            xione = (overV - 1.0) * (ffitlo / overV)^2
-        else
-            beta2 = (energy * (energy + 2.0 * REV)) / ((energy + REV)^2)
-            x = sqrt(energy * (energy + 2.0 * REV)) / REV
-            g = bsdatum.G[shell,:]
-            ffitup = (((2.0 * log(x)) - beta2) * (1.0 + g[1] / x)) +
-            g[2] +
-            g[3] * sqrt(REV / (energy + REV)) +
-            g[4] / x
-            factr = bsdatum.Anlj[shell] / beta2
-            xione = ((factr * overV) / (overV + bsdatum.Be[shell])) * ffitup
-        end
-    end
-    return FPIAB2 * xione
+function boteSalvatICX(
+   z::Int,
+   subshell::Int,
+   energy::AbstractFloat,
+   edgeenergy::AbstractFloat = boteSalvatEdgeEnergy(z, subshell),
+)
+   @assert (z >= 1) && (z <= length(BoteSalvatElectron)) "z must be in the range 1:$(length(BoteSalvatElectron))."
+   bsdatum = BoteSalvatElectron[z]
+   @assert subshell <= length(bsdatum.edge) "For z=$(bsdatum.z), the sub-shell must be in the range 1:$(length(bsdatum.edge))"
+   xione = 0.0
+   overV = energy / edgeenergy
+   if overV > 1.0
+      if overV <= 16.0
+         as = bsdatum.A[subshell, :]
+         opu = 1.0 / (1.0 + overV)
+         ffitlo = as[1] + as[2] * overV + opu*(as[3] + opu^2*(as[4] + opu^2*as[5]))
+         xione = (overV - 1.0) * (ffitlo / overV)^2
+      else
+         beta2 = (energy * (energy + 2.0 * REV)) / ((energy + REV)^2)
+         x = sqrt(energy * (energy + 2.0 * REV)) / REV
+         g = bsdatum.G[subshell, :]
+         ffitup = (((2.0 * log(x)) - beta2) * (1.0 + g[1] / x)) + g[2] + g[3] * sqrt(REV / (energy + REV)) + g[4] / x
+         factr = bsdatum.Anlj[subshell] / beta2
+         xione = ((factr * overV) / (overV + bsdatum.Be[subshell])) * ffitup
+      end
+   end
+   return FPIAB2 * xione
 end
 
 """
-    boteSalvatAvailable(bs::BoteSalvatElementDatum, shell::Int)
+    boteSalvatAvailable(z::Integer, subshell::Int)
 
-Is data available for the the specified element and shell?
+Is data available for the the specified element and sub-shell?
+* `z` is the atomic number 1:99
+* `subshell` is 1->K, 2->L₁, 3->L₂, ..., 9->M₅
+"""
+boteSalvatAvailable(z::Integer, subshell::Int) = #
+   (z in eachindex(BoteSalvatElectron)) && (subshell in eachindex(BoteSalvatElectron[z].edge))
+
+"""
+    boteSalvatEdgeEnergy(z::Integer, subshell::Int)
+
+The default value for the edge energy as provided by Bote & Salvat (in eV).
 * z is the atomic number 1:99
-* shell is 1->K, 2->L1, ..., 9->M5
+* subshell is 1->K, 2->L₁, 3->L₂, ..., 9->M₅
 """
-boteSalvatAvailable(z::Integer, shell::Int) =
-   (z >= 1) && (z <= length(BoteSalvatElectron)) &&
-   (shell >= 1) && (shell <= length(BoteSalvatElectron[z].edge))
-
-"""
-    boteSalvateEdgeEnergy(bs::BoteSalvatElementDatum, shell::Int)
-
-The edge energy used by Bote & Salvat in eV.
-* z is the atomic number 1:99
-* shell is 1->K, 2->L1, ..., 9->M5
-"""
-boteSalvatEdgeEnergy(z::Integer, shell::Int) =
-   BoteSalvatElectron[z].edge[shell]
+boteSalvatEdgeEnergy(z::Integer, subshell::Int) = BoteSalvatElectron[z].edge[subshell]
