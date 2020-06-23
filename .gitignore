@@ -5,4 +5,5 @@ deps/deps.jl
 docs/build/*
 docs/src/*.html
 docs/src/jl_*
+docs/src/figures
 Manifest.toml

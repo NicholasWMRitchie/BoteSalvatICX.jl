@@ -516,20 +516,27 @@ const BoteSalvatElectron = (
 )
 
 """
-    boteSalvatICX(z::Int, subshell::Int, energy::AbstractFloat, edgeenergy::AbstractFloat=boteSalvatEdgeEnergy(z, subshell))
+    ionizationcrosssection(
+         ::Type{BoteSalvat2009},
+         z::Int,
+         subshell::Int,
+         energy::AbstractFloat,
+         edgeenergy::AbstractFloat = edgeenergy(BoteSalvat2009, z, subshell),
+     )
 
 Computes the inner sub-shell ionization cross section for energetic electrons. Asserts if `z` or `subshell` is
-out of range. Use is boteSalvatAvailable(...) to determine whether an element/sub-shell pair is available.
+out of range. Use is hasedge(BoteSalvat2009, ...) to determine whether an element/sub-shell pair is available.
 * `z` : The atomic number z in the range 1:99
 * `subshell` : The atomic sub-shell being ionized 1->K, 2->L₁, 3->L₂, ..., 9->M₅
 * `energy` : The kinetic energy of the incident electron in eV
 * `edgeenergy` : The edge energy of the sub-shell in eV
 """
-function boteSalvatICX(
+function ionizationcrosssection(
+   ::Type{BoteSalvat2009},
    z::Int,
    subshell::Int,
    energy::AbstractFloat,
-   edgeenergy::AbstractFloat = boteSalvatEdgeEnergy(z, subshell),
+   edgeenergy::AbstractFloat = edgeenergy(BoteSalvat2009, z, subshell),
 )
    @assert (z >= 1) && (z <= length(BoteSalvatElectron)) "z must be in the range 1:$(length(BoteSalvatElectron))."
    bsdatum = BoteSalvatElectron[z]
@@ -555,20 +562,20 @@ function boteSalvatICX(
 end
 
 """
-    boteSalvatAvailable(z::Integer, subshell::Int)
+    hasedge(::Type{BoteSalvat2009}, z::Integer, subshell::Int)
 
 Is data available for the the specified element and sub-shell?
 * `z` is the atomic number 1:99
 * `subshell` is 1->K, 2->L₁, 3->L₂, ..., 9->M₅
 """
-boteSalvatAvailable(z::Integer, subshell::Int) = #
+hasedge(::Type{BoteSalvat2009}, z::Integer, subshell::Int) = #
    (z in eachindex(BoteSalvatElectron)) && (subshell in eachindex(BoteSalvatElectron[z].edge))
 
 """
-    boteSalvatEdgeEnergy(z::Integer, subshell::Int)
+    edgeenergy(::Type{BoteSalvat2009}, z::Integer, subshell::Int)
 
 The default value for the edge energy as provided by Bote & Salvat (in eV).
 * z is the atomic number 1:99
 * subshell is 1->K, 2->L₁, 3->L₂, ..., 9->M₅
 """
-boteSalvatEdgeEnergy(z::Integer, subshell::Int) = BoteSalvatElectron[z].edge[subshell]
+edgeenergy(::Type{BoteSalvat2009}, z::Integer, subshell::Int) = BoteSalvatElectron[z].edge[subshell]
