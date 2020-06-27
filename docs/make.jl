@@ -4,6 +4,8 @@ using BoteSalvatICX
 using Cairo
 using Fontconfig
 
+rm("build",force=true,recursive=true)
+
 weaveit(name) = weave(joinpath("src", "$name"), out_path=joinpath("src", "$(splitext(name)[1]).md"), doctype="github")
 
 names = ( "Example.ipynb", )
