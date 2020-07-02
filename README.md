@@ -1,6 +1,6 @@
 # BoteSalvatICX.jl
 
-![Build Badge](https://travis-ci.com/usnistgov/BoteSalvatICX.jl.svg?branch=master)
+![Build Badge](https://travis-ci.com/usnistgov/BoteSalvatICX.jl.svg?branch=master) [Documentation](https://pages.nist.gov/BoteSalvatICX.jl)
 
 Implements the Bote-Salvat ionization cross section model described in
 
