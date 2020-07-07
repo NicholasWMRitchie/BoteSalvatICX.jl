@@ -35,3 +35,12 @@ jobs:
                                     Pkg.develop(PackageSpec(path=pwd()))'
         - julia --project=docs/ docs/make.jl
       after_success: skip
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_KEY  # Set in the settings page of your repository, as a secure variable
+  keep_history: true
+  target_branch: nist-pages
+  on:
+    branch: master

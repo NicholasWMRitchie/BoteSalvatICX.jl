@@ -41,9 +41,9 @@ makedocs(
 map(name->rm(joinpath("src","$(splitext(name)[1]).md")), names)
 addNISTHeaders(joinpath(@__DIR__, "build","index.html"))
 addNISTHeaders.(map(name->joinpath(@__DIR__, "build", splitext(name)[1], "index.html"), names))
-deploydocs(
-    repo   = "github.com/USNISTGOV/BoteSalvatICX.jl.git",
-    branch = "nist-pages",
-    versions = "v^",
-)
+#deploydocs(
+#    repo   = "github.com/USNISTGOV/BoteSalvatICX.jl.git",
+#    branch = "nist-pages",
+#    versions = "v^",
+#)
 # deploydocs(repo = "github.com/USNISTGOV/BoteSalvatICX.jl.git")
