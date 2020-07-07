@@ -1,9 +1,0 @@
-*.jl.cov
-*.jl.*.cov
-*.jl.mem
-deps/deps.jl
-docs/src/*.html
-docs/src/jl_*
-docs/src/figures
-docs/build/*
-Manifest.toml
