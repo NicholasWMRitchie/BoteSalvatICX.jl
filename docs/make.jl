@@ -19,6 +19,7 @@ function addNISTHeaders(htmlfile::String)
             "<script src=\"https://pages.nist.gov/nist-header-footer/js/nist-header-footer.js\" type=\"text/javascript\" defer=\"defer\"></script>\n"*
             html[i.start:end]
         write(htmlfile, res)
+        println("Inserting NIST header/footer into $htmlfile")
     end
     return htmlfile
 end
