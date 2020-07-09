@@ -8,8 +8,8 @@
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://pages.nist.gov/BoteSalvatICX.jl
-[travis-img]: https://travis-ci.org/JuliaData/CSV.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/JuliaData/CSV.jl
+[travis-img]: https://travis-ci.com/usnistgov/BoteSalvatICX.jl.svg?branch=master
+[travis-url]: https://travis-ci.com/usnistgov/BoteSalvatICX.jl
 
 Implements the Bote-Salvat ionization cross section model described in
 
