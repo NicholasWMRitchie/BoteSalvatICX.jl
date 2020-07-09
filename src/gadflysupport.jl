@@ -1,8 +1,5 @@
 using .Gadfly
 
-#using Colors
-#Gadfly.parse_colorant(c::Array{Colorant,1}) = c
-
 function Gadfly.plot(::Type{BoteSalvat2009}, z::Integer)
     colors = [ "red", "green", "blue", "yellow", "lightgreen", "purple", "brown", "orange", "lightblue"]
     name = [ "K", "L1", "L2", "L3", "M1", "M2", "M3", "M4", "M5" ]
