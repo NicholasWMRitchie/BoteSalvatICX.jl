@@ -1,6 +1,15 @@
 # BoteSalvatICX.jl
 
-![Build Badge](https://travis-ci.com/usnistgov/BoteSalvatICX.jl.svg?branch=master) [Documentation](https://pages.nist.gov/BoteSalvatICX.jl)
+
+| **Documentation**                        | **Build Status**                  |
+|:----------------------------------------:|:---------------------------------:|
+| [![][docs-stable-img]][docs-stable-url]  | [![][travis-img]][travis-url]     |
+
+
+[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
+[docs-stable-url]: https://pages.nist.gov/BoteSalvatICX.jl
+[travis-img]: https://travis-ci.org/JuliaData/CSV.jl.svg?branch=master
+[travis-url]: https://travis-ci.org/JuliaData/CSV.jl
 
 Implements the Bote-Salvat ionization cross section model described in
 
