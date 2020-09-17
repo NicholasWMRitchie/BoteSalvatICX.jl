@@ -2,12 +2,7 @@ module BoteSalvatICX
 
 using Requires
 
-# A data type used to identify the algorithms
-struct BoteSalvat2009 end
-
 include("xione.jl")
-
-export BoteSalvat2009
 
 export ionizationcrosssection  # Computes the ionization crosssection for electron impact on free atoms
 export hasedge # Is data available for the specified element and shell
