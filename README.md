@@ -44,6 +44,6 @@ edgeenergy(z::Integer, subshell::Int)
 
 If the plotting module [Gadfly](https://github.com/GiovineItalia/Gadfly.jl) is loaded, the function
 ```julia
-plot(z::Integer)
+plotICX(z::Integer)
 ```
 will produce a log-log plot of the cross sections for all available sub-shells from threshold to 1 GeV.
