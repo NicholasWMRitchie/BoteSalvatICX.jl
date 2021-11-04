@@ -1,6 +1,3 @@
-const FPIAB2 = 4.0π * 5.291772108e-9^2 # from xion.f
-const REV = 5.10998918e5 # from xion.f
-
 struct BoteSalvatElementDatum
     z::Int
     Be::Vector{Float64}  # [1:9]
@@ -543,20 +540,21 @@ function ionizationcrosssection(
    overV = energy / edgeenergy
    if overV > 1.0
       if overV <= 16.0
-         as = bsdatum.A[subshell, :]
+         as = @view bsdatum.A[subshell, :]
          opu = 1.0 / (1.0 + overV)
          ffitlo = as[1] + as[2] * overV + opu*(as[3] + opu^2*(as[4] + opu^2*as[5]))
          xione = (overV - 1.0) * (ffitlo / overV)^2
       else
+         REV = 5.10998918e5 # electron rest energy from xion.f
          beta2 = (energy * (energy + 2.0 * REV)) / ((energy + REV)^2)
          x = sqrt(energy * (energy + 2.0 * REV)) / REV
-         g = bsdatum.G[subshell, :]
+         g = @view bsdatum.G[subshell, :]
          ffitup = (((2.0 * log(x)) - beta2) * (1.0 + g[1] / x)) + g[2] + g[3] * sqrt(REV / (energy + REV)) + g[4] / x
          factr = bsdatum.Anlj[subshell] / beta2
          xione = ((factr * overV) / (overV + bsdatum.Be[subshell])) * ffitup
       end
    end
-   return FPIAB2 * xione
+   return 4.0π * 5.291772108e-9^2 * xione
 end
 
 """

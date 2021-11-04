@@ -1,5 +1,7 @@
 using .Gadfly
 
+export plotICX, plotICXRatio, plotICXRatio2
+
 function plotICX(z::Integer)
     colors = [ "red", "green", "blue", "yellow", "lightgreen", "purple", "brown", "orange", "lightblue"]
     name = [ "K", "L1", "L2", "L3", "M1", "M2", "M3", "M4", "M5" ]
